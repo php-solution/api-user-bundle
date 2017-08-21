@@ -1,0 +1,92 @@
+parameters:
+    # Controller
+    user.controller.dto.change_password.class: 'PhpSolution\ApiUserBundle\Dto\ChangePasswordDto'
+    user.controller.dto.reset_password.class: 'PhpSolution\ApiUserBundle\Dto\ResetPasswordDto'
+    user.controller.dto.registration.class: 'PhpSolution\ApiUserBundle\Dto\RegistrationDto'
+    user.controller.dto.update.class: 'PhpSolution\ApiUserBundle\Dto\UpdateDto'
+
+services:
+    # Controller
+    user.controller.change_password:
+        class: 'PhpSolution\ApiUserBundle\Controller\ChangePasswordController'
+        arguments:
+            - '%user.controller.dto.change_password.class%'
+
+    user.controller.forgot_password:
+        class: 'PhpSolution\ApiUserBundle\Controller\ForgotPasswordController'
+        arguments:
+            - '%user.controller.dto.reset_password.class%'
+
+    user.controller.registration:
+        class: 'PhpSolution\ApiUserBundle\Controller\RegistrationController'
+        arguments:
+            - '%user.controller.dto.registration.class%'
+
+    user.controller.update:
+        class: 'PhpSolution\ApiUserBundle\Controller\UpdateController'
+        arguments:
+            - '%user.controller.dto.update.class%'
+
+    # Process
+    user.process.change_password:
+        class: 'PhpSolution\ApiUserBundle\Process\ChangePasswordProcess'
+        arguments:
+            - '@user.service.user'
+            - '@event_dispatcher'
+
+    user.process.confirm_registration:
+        class: 'PhpSolution\ApiUserBundle\Process\ConfirmRegistrationProcess'
+        arguments:
+            - '@user.service.user'
+            - '@event_dispatcher'
+
+    user.process.forgot_password:
+        class: 'PhpSolution\ApiUserBundle\Process\ForgotPasswordProcess'
+        arguments:
+            - '@user.service.user'
+            - '@user.util.token_generator'
+            - '@event_dispatcher'
+
+    user.process.registration:
+        class: 'PhpSolution\ApiUserBundle\Process\RegistrationProcess'
+        arguments:
+            - '@user.util.user_factory'
+            - '@user.service.user'
+            - '@event_dispatcher'
+
+    user.process.update:
+        class: 'PhpSolution\ApiUserBundle\Process\UpdateProcess'
+        arguments:
+            - '@user.service.user'
+            - '@event_dispatcher'
+
+    # Security
+    ## User
+    user.security.user_provider:
+        class: 'PhpSolution\ApiUserBundle\Security\User\UserProvider'
+        arguments:
+            - '%user.user_entity_class%'
+            - '@doctrine'
+
+    # Service
+    user.service.user:
+        class: 'PhpSolution\ApiUserBundle\Service\UserService'
+        arguments:
+            - '@validator'
+            - '%user.user_entity_class%'
+            - '@security.encoder_factory'
+        calls:
+            - ['setDoctrine', ['@doctrine']]
+
+    # Util
+    user.util.token_generator:
+        public: false
+        class: 'Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator'
+
+    user.util.user_factory:
+        class: 'PhpSolution\ApiUserBundle\Util\UserFactory'
+        arguments:
+            - '%user.user_entity_class%'
+            - '%user.user_enabled_by_default%'
+        calls:
+            - ['setTokenGenerator', ['@user.util.token_generator']]

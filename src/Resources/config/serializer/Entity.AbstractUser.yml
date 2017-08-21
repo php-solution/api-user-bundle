@@ -1,0 +1,24 @@
+PhpSolution\ApiUserBundle\Entity\AbstractUser:
+    properties:
+        id:
+            type: integer
+        roles:
+            type: array
+        confirmationToken:
+            exclude: true
+        passwordRequestedAt:
+            exclude: true
+        email:
+            type: string
+        enabled:
+            type: boolean
+        salt:
+            exclude: true
+        password:
+            exclude: true
+        plainPassword:
+            exclude: true
+        createdAt:
+            exclude: true
+        updatedAt:
+            exclude: true

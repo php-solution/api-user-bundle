@@ -1,0 +1,16 @@
+PhpSolution\ApiUserBundle\Entity\AbstractUser:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: { fields: email }
+    properties:
+        email:
+            - NotBlank:
+                groups: [all]
+            - Email:
+                groups: [all]
+            - Length:
+                min: 2
+                max: 255
+                groups: [all]
+        plainPassword:
+            - NotBlank:
+                groups: [registration, changePassword, resetPassword]

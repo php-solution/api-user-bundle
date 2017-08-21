@@ -1,0 +1,29 @@
+/user/change-password:
+    path: '/change-password'
+    defaults: { _controller: user.controller.change_password:changePasswordAction }
+    methods: [PATCH]
+
+/user/confirm:
+    path: '/confirm/{token}'
+    defaults: { _controller: user.controller.registration:confirmAction }
+    methods: [POST]
+
+/user/forgot:
+    path: '/forgot'
+    defaults: { _controller: user.controller.forgot_password:forgotAction }
+    methods: [PATCH]
+
+/user/reset:
+    path: '/reset'
+    defaults: { _controller: user.controller.forgot_password:resetAction }
+    methods: [PATCH]
+
+/user/register:
+    path: '/register'
+    defaults: { _controller: user.controller.registration:registerAction }
+    methods: [POST]
+
+/user/update:
+    path: '/'
+    defaults: { _controller: user.controller.update:updateAction }
+    methods: [PATCH]

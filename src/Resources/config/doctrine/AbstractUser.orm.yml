@@ -1,0 +1,56 @@
+PhpSolution\ApiUserBundle\Entity\AbstractUser:
+    type: mappedSuperclass
+    repositoryClass: 'PhpSolution\ApiUserBundle\Repository\UserRepository'
+    lifecycleCallbacks:
+        prePersist: [ updateCreatedAt ]
+        preUpdate: [ updateUpdatedAt ]
+    id:
+        id:
+            type: integer
+            nullable: false
+            generator:
+                strategy: AUTO
+            options:
+                unsigned: true
+    fields:
+        email:
+            column: email
+            type: string
+            length: 255
+            nullable: false
+            unique: true
+        password:
+            column: password
+            type: string
+            length: 127
+            nullable: false
+        enabled:
+            column: enabled
+            type: boolean
+            nullable: false
+        roles:
+            column: roles
+            type: array
+            nullable: false
+        salt:
+            column: salt
+            type: string
+            length: 31
+            nullable: true
+        confirmationToken:
+            column: confirmation_token
+            type: string
+            length: 63
+            nullable: true
+        createdAt:
+            column: created_at
+            type: datetime
+            nullable: false
+        updatedAt:
+            column: updated_at
+            type: datetime
+            nullable: true
+        passwordRequestedAt:
+            column: password_requested_at
+            type: datetime
+            nullable: true

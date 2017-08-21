@@ -1,0 +1,9 @@
+services:
+    user.event_subscriber.registration_confirmation:
+        class: 'PhpSolution\ApiUserBundle\EventSubscriber\RegistrationConfirmationSubscriber'
+        arguments:
+            - '@router'
+            - '@mailer'
+            - '%mailer_user%'
+        tags:
+            - { name: kernel.event_subscriber }
