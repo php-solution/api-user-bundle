@@ -1,6 +1,8 @@
 PhpSolution\ApiUserBundle\Entity\AbstractUser:
     constraints:
-        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: { fields: email }
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: email
+            groups: [all]
     properties:
         email:
             - NotBlank:

@@ -1,5 +1,5 @@
 services:
-    user.event_subscriber.registration_confirmation:
+    api_user.event_subscriber.registration_confirmation:
         class: 'PhpSolution\ApiUserBundle\EventSubscriber\RegistrationConfirmationSubscriber'
         arguments:
             - '@router'

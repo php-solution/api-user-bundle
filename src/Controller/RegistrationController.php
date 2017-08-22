@@ -23,6 +23,10 @@ class RegistrationController extends AbstractController
      */
     public function __construct($registrationDtoClass)
     {
+        if (!class_exists($registrationDtoClass)) {
+            $template = '%s got this class name "%s" in constructor, but this class not exists';
+            throw new \RuntimeException(sprintf($template, __CLASS__, $registrationDtoClass));
+        }
         $this->registrationDtoClass = $registrationDtoClass;
     }
 
@@ -44,7 +48,7 @@ class RegistrationController extends AbstractController
         $dto = $this->getRegistrationDto();
         (new ObjectMapper($dto))->map($request->request->all());
 
-        $user = $this->get('user.process.registration')->register($dto);
+        $user = $this->get('api_user.process.registration')->register($dto);
 
         return $this->response($user);
     }
@@ -57,7 +61,7 @@ class RegistrationController extends AbstractController
     public function confirmAction($token): Response
     {
         try {
-            $user = $this->get('user.process.confirm_registration')->confirm($token);
+            $user = $this->get('api_user.process.confirm_registration')->confirm($token);
         } catch (NotFoundException $ex) {
             return $this->response($ex);
         }

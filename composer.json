@@ -14,6 +14,7 @@
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/orm": "^2.5",
         "php-solution/api-response-lib": "^v0.1.1",
+        "php-solution/doctrine-orm-extra-lib": "^0.3",
         "symfony/dependency-injection": "^3.3",
         "symfony/framework-bundle": "^3.3",
         "symfony/http-kernel": "^3.3",

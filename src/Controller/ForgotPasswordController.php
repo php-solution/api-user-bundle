@@ -23,6 +23,10 @@ class ForgotPasswordController extends AbstractController
      */
     public function __construct(string $resetPasswordDtoClass)
     {
+        if (!class_exists($resetPasswordDtoClass)) {
+            $template = '%s got this class name "%s" in constructor, but this class not exists';
+            throw new \RuntimeException(sprintf($template, __CLASS__, $resetPasswordDtoClass));
+        }
         $this->resetPasswordDtoClass = $resetPasswordDtoClass;
     }
 
@@ -44,7 +48,7 @@ class ForgotPasswordController extends AbstractController
         if (empty($email = $request->get('email'))) {
             return $this->errorResponse('Email is empty');
         }
-        $user = $this->get('user.process.forgot_password')->createToken($email);
+        $user = $this->get('api_user.process.forgot_password')->createToken($email);
 
         return $this->response($user);
     }
@@ -60,7 +64,7 @@ class ForgotPasswordController extends AbstractController
         (new ObjectMapper($dto))->map($request->request->all());
 
         try {
-            $user = $this->get('user.process.forgot_password')->resetPassword($dto);
+            $user = $this->get('api_user.process.forgot_password')->resetPassword($dto);
         } catch (NotFoundException $ex) {
             return $this->response($ex);
         }

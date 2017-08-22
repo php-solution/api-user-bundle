@@ -22,6 +22,10 @@ class ChangePasswordController extends AbstractController
      */
     public function __construct(string $changePasswordDtoClass)
     {
+        if (!class_exists($changePasswordDtoClass)) {
+            $template = '%s got this class name "%s" in constructor, but this class not exists';
+            throw new \RuntimeException(sprintf($template, __CLASS__, $changePasswordDtoClass));
+        }
         $this->changePasswordDtoClass = $changePasswordDtoClass;
     }
 
@@ -43,7 +47,7 @@ class ChangePasswordController extends AbstractController
         $dto = $this->getChangePasswordDto();
         (new ObjectMapper($dto))->map($request->request->all());
 
-        $user = $this->get('user.process.change_password')->change($this->getUser(), $dto);
+        $user = $this->get('api_user.process.change_password')->change($this->getUser(), $dto);
 
         return $this->response($user);
     }

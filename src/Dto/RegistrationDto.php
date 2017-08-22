@@ -17,6 +17,11 @@ class RegistrationDto
     private $plainPassword;
 
     /**
+     * @var array
+     */
+    private $roles = [];
+
+    /**
      * @return null|string
      */
     public function getEmail():? string
@@ -52,6 +57,26 @@ class RegistrationDto
     public function setPlainPassword(string $plainPassword)
     {
         $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @param array $roles
+     *
+     * @return self
+     */
+    public function setRoles(array $roles)
+    {
+        $this->roles = $roles;
 
         return $this;
     }

@@ -24,8 +24,8 @@ class ApiUserExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
 
-        $container->setParameter('user.user_entity_class', $config['user_entity_class']);
-        $container->setParameter('user.user_enabled_by_default', $config['user_enabled_by_default']);
+        $container->setParameter('api_user.user_entity_class', $config['user_entity_class']);
+        $container->setParameter('api_user.user_enabled_by_default', $config['user_enabled_by_default']);
         if ($config['send_email_confirmation']) {
             $loader->load('event/registration_confirmation.yml');
         }
