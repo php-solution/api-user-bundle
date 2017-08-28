@@ -1,0 +1,8 @@
+definitions:
+  User:
+    type: 'object'
+    properties:
+      id: {type: 'integer'}
+      email: {type: 'string'}
+      roles: {type: 'array', items: {type: string}}
+      enabled: {type: 'boolean'}

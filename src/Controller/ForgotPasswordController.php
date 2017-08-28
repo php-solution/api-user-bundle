@@ -2,9 +2,7 @@
 
 namespace PhpSolution\ApiUserBundle\Controller;
 
-use PhpSolution\StdLib\Exception\NotFoundException;
-use PhpSolution\StdLib\Mapper\ObjectMapper;
-use PhpSolution\ApiUserBundle\Dto\ResetPasswordDto;
+use PhpSolution\ApiUserBundle\Form\Type\ForgotPasswordFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,61 +12,32 @@ use Symfony\Component\HttpFoundation\Response;
 class ForgotPasswordController extends AbstractController
 {
     /**
-     * @var string
-     */
-    private $resetPasswordDtoClass;
-
-    /**
-     * @param string $resetPasswordDtoClass
-     */
-    public function __construct(string $resetPasswordDtoClass)
-    {
-        if (!class_exists($resetPasswordDtoClass)) {
-            $template = '%s got this class name "%s" in constructor, but this class not exists';
-            throw new \RuntimeException(sprintf($template, __CLASS__, $resetPasswordDtoClass));
-        }
-        $this->resetPasswordDtoClass = $resetPasswordDtoClass;
-    }
-
-    /**
-     * @return ResetPasswordDto
-     */
-    public function getResetPasswordDto(): ResetPasswordDto
-    {
-        return new $this->resetPasswordDtoClass;
-    }
-
-    /**
      * @param Request $request
      *
      * @return Response
      */
     public function forgotAction(Request $request): Response
     {
-        if (empty($email = $request->get('email'))) {
-            return $this->errorResponse('Email is empty');
+        $form = $this->createForm(ForgotPasswordFormType::class);
+        $form->handleRequest($request);
+        if (!$form->isValid()) {
+            return $this->response($form);
         }
-        $user = $this->get('api_user.process.forgot_password')->createToken($email);
+        $result = $this->get('api_user.process.forgot_password')->createToken($form->getData()['email']);
 
-        return $this->response($user);
+        return $this->response($result);
     }
 
     /**
      * @param Request $request
+     * @param string  $token
      *
      * @return Response
      */
-    public function resetAction(Request $request): Response
+    public function resetAction(Request $request, string $token): Response
     {
-        $dto = $this->getResetPasswordDto();
-        (new ObjectMapper($dto))->map($request->request->all());
+        $result = $this->get('api_user.process.forgot_password')->resetPassword($token, $request->request->all());
 
-        try {
-            $user = $this->get('api_user.process.forgot_password')->resetPassword($dto);
-        } catch (NotFoundException $ex) {
-            return $this->response($ex);
-        }
-
-        return $this->response($user);
+        return $this->response($result);
     }
 }

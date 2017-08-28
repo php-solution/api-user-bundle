@@ -1,29 +1,29 @@
 /user/change-password:
     path: '/change-password'
-    defaults: { _controller: api_user.controller.change_password:changePasswordAction }
-    methods: [PATCH]
+    defaults: { _controller: ApiUserBundle:ChangePassword:changePassword }
+    methods: [POST]
 
 /user/confirm:
     path: '/confirm/{token}'
-    defaults: { _controller: api_user.controller.registration:confirmAction }
+    defaults: { _controller: ApiUserBundle:Registration:confirm }
     methods: [POST]
 
 /user/forgot:
     path: '/forgot'
-    defaults: { _controller: api_user.controller.forgot_password:forgotAction }
-    methods: [PATCH]
-
-/user/reset:
-    path: '/reset'
-    defaults: { _controller: api_user.controller.forgot_password:resetAction }
-    methods: [PATCH]
+    defaults: { _controller: ApiUserBundle:ForgotPassword:forgot }
+    methods: [POST]
 
 /user/register:
     path: '/register'
-    defaults: { _controller: api_user.controller.registration:registerAction }
+    defaults: { _controller: ApiUserBundle:Registration:register }
+    methods: [POST]
+
+/user/reset:
+    path: '/reset/{token}'
+    defaults: { _controller: ApiUserBundle:ForgotPassword:reset }
     methods: [POST]
 
 /user/update:
     path: '/'
-    defaults: { _controller: api_user.controller.update:updateAction }
+    defaults: { _controller: ApiUserBundle:Update:update }
     methods: [PATCH]

@@ -33,13 +33,15 @@ class CreateUserCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $dto = (new RegistrationDto())
+        $user = $this
+            ->getContainer()
+            ->get('api_user.util.user_factory')
+            ->createUser(true)
             ->setEmail($input->getArgument('email'))
             ->setPlainPassword($input->getArgument('password'))
             ->setRoles($input->getOption('role'));
 
-        $user = $this->getContainer()->get('api_user.util.user_factory')->createUser(true);
-        $result = $this->getContainer()->get('api_user.service.user')->updateUser($user, $dto);
+        $result = $this->getContainer()->get('api_user.service.user')->updateUser($user);
 
         if ($result === $user) {
             $output->writeln(sprintf('Created user <comment>%s</comment>', $user->getEmail()));

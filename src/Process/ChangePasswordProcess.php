@@ -2,68 +2,53 @@
 
 namespace PhpSolution\ApiUserBundle\Process;
 
-use PhpSolution\ApiUserBundle\Dto\ChangePasswordDto;
-use PhpSolution\ApiUserBundle\Dto\NewPasswordDto;
 use PhpSolution\ApiUserBundle\Entity\UserInterface;
 use PhpSolution\ApiUserBundle\Event\UserEvent;
 use PhpSolution\ApiUserBundle\Service\UserService;
 use PhpSolution\ApiUserBundle\UserEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * ChangePasswordProcess
  */
-class ChangePasswordProcess
+class ChangePasswordProcess extends AbstractProcess
 {
     /**
-     * @var UserService
+     * @var string
      */
-    private $userService;
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    protected $changePasswordFormClass;
 
     /**
+     * @param FormFactory              $formFactory
      * @param UserService              $userService
      * @param EventDispatcherInterface $eventDispatcher
+     * @param string                   $changePasswordFormClass
      */
-    public function __construct(UserService $userService, EventDispatcherInterface $eventDispatcher)
+    public function __construct(FormFactory $formFactory, UserService $userService,
+                                EventDispatcherInterface $eventDispatcher, string $changePasswordFormClass)
     {
-        $this->userService = $userService;
-        $this->eventDispatcher = $eventDispatcher;
+        parent::__construct($formFactory, $userService, $eventDispatcher);
+        $this->changePasswordFormClass = $changePasswordFormClass;
     }
 
     /**
      * @param UserInterface     $user
-     * @param ChangePasswordDto $dto
+     * @param array             $data
      *
-     * @return ConstraintViolationListInterface|UserInterface
+     * @return FormInterface|UserInterface
      */
-    public function change(UserInterface $user, ChangePasswordDto $dto)
+    public function change(UserInterface $user, array $data)
     {
-        $violations = new ConstraintViolationList();
-        if ($this->userService->encodePassword($dto->getOldPassword(), $user) !== $user->getPassword()) {
-            $message = 'Old password is wrong';
-            $violations->add(new ConstraintViolation($message, $message, [], null, 'oldPassword', null));
-        }
-        if ($dto->getNewPassword() !== $dto->getNewPasswordConfirmation()) {
-            $message = 'New passwords do not match';
-            $violations->add(new ConstraintViolation($message, $message, [], null, 'newPassword', null));
-        }
-        if ($violations->count() > 0) {
-            return $violations;
+        $form = $this->formFactory->create($this->changePasswordFormClass, $user);
+        $form->submit($data);
+        if (!$form->isValid()) {
+            return $form;
         }
 
-        $result = $this->userService->updateUser($user, new NewPasswordDto($dto->getNewPassword()), ['changePassword']);
-        if ($result instanceof ConstraintViolationListInterface) {
-            return $result;
-        }
-
-        $this->eventDispatcher->dispatch(UserEvents::CHANGE_PASSWORD_COMPLETED, new UserEvent($user, $dto));
+        $this->userService->updateUser($user);
+        $this->eventDispatcher->dispatch(UserEvents::CHANGE_PASSWORD_COMPLETED, new UserEvent($user));
 
         return $user;
     }

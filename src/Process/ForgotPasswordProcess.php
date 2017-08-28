@@ -2,13 +2,13 @@
 
 namespace PhpSolution\ApiUserBundle\Process;
 
-use PhpSolution\StdLib\Exception\NotFoundException;
-use PhpSolution\ApiUserBundle\Dto\ResetPasswordDto;
 use PhpSolution\ApiUserBundle\Entity\UserInterface;
 use PhpSolution\ApiUserBundle\Event\UserEvent;
 use PhpSolution\ApiUserBundle\Service\UserService;
 use PhpSolution\ApiUserBundle\UserEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -17,36 +17,34 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 /**
  * ForgotPasswordProcess
  */
-class ForgotPasswordProcess
+class ForgotPasswordProcess extends AbstractProcess
 {
     /**
-     * @var UserService
+     * @var string
      */
-    private $userService;
+    protected $resetPasswordFormClass;
     /**
      * @var TokenGeneratorInterface
      */
     private $tokenGenerator;
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
     /**
      * @var int
      */
     private $tokenTtl = 3600;
 
     /**
+     * @param FormFactory              $formFactory
      * @param UserService              $userService
-     * @param TokenGeneratorInterface  $tokenGenerator
      * @param EventDispatcherInterface $eventDispatcher
+     * @param TokenGeneratorInterface  $tokenGenerator
+     * @param string                   $resetPasswordFormClass
      */
-    public function __construct(UserService $userService, TokenGeneratorInterface $tokenGenerator,
-                                EventDispatcherInterface $eventDispatcher)
+    public function __construct(FormFactory $formFactory, UserService $userService, EventDispatcherInterface $eventDispatcher,
+                                TokenGeneratorInterface $tokenGenerator, string $resetPasswordFormClass)
     {
-        $this->userService = $userService;
+        parent::__construct($formFactory, $userService, $eventDispatcher);
         $this->tokenGenerator = $tokenGenerator;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->resetPasswordFormClass = $resetPasswordFormClass;
     }
 
     /**
@@ -78,7 +76,9 @@ class ForgotPasswordProcess
     {
         $user = $this->userService->getRepository()->findOneEnabledByEmail($email);
         if ($user === null) {
-            throw new \RuntimeException(sprintf('The user with email "%s" does not exist', $email));
+            $message = sprintf('The user with email "%s" does not exist', $email);
+
+            return new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, 'email', $email)]);
         }
         if ($user->isPasswordRequestNonExpired($this->getTokenTtl())) {
             $message = 'The password for this user has already been requested';
@@ -91,28 +91,30 @@ class ForgotPasswordProcess
             ->setPasswordRequestedAt(new \DateTime());
 
         $this->userService->updateUser($user);
-
         $this->eventDispatcher->dispatch(UserEvents::FORGOT_PASSWORD_TOKEN_CREATED, new UserEvent($user));
 
         return $user;
     }
 
     /**
-     * @param ResetPasswordDto $dto
+     * @param string $token
+     * @param array  $data
      *
-     * @return ConstraintViolationListInterface|UserInterface
+     * @return FormInterface|ConstraintViolationListInterface|UserInterface
      */
-    public function resetPassword(ResetPasswordDto $dto)
+    public function resetPassword(string $token, array $data)
     {
-        $token = $dto->getToken();
         $user = $this->userService->getRepository()->findOneByConfirmationToken($token);
         if ($user === null) {
-            throw new NotFoundException(sprintf('The user with confirmation token "%s" does not exist', $token));
+            $message = sprintf('The user with confirmation token "%s" does not exist', $token);
+
+            return new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, 'token', $token)]);
         }
 
-        $result = $this->userService->updateUser($user, $dto, ['resetPassword']);
-        if ($result instanceof ConstraintViolationListInterface) {
-            return $result;
+        $form = $this->formFactory->create($this->resetPasswordFormClass, $user);
+        $form->submit($data);
+        if (!$form->isValid()) {
+            return $form;
         }
 
         $this->eventDispatcher->dispatch(UserEvents::FORGOT_PASSWORD_COMPLETED, new UserEvent($user));

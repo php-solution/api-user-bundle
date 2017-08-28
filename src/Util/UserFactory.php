@@ -2,6 +2,7 @@
 
 namespace PhpSolution\ApiUserBundle\Util;
 
+use PhpSolution\ApiUserBundle\Entity\AbstractUser;
 use PhpSolution\ApiUserBundle\Entity\UserInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
@@ -52,9 +53,9 @@ class UserFactory
     /**
      * @param bool $enable
      *
-     * @return UserInterface
+     * @return AbstractUser
      */
-    public function createUser($enable = null): UserInterface
+    public function createUser($enable = null): AbstractUser
     {
         $user = $this->createInstance();
 
@@ -70,9 +71,9 @@ class UserFactory
     }
 
     /**
-     * @return UserInterface
+     * @return AbstractUser
      */
-    protected function createInstance(): UserInterface
+    protected function createInstance(): AbstractUser
     {
         return new $this->userClass;
     }

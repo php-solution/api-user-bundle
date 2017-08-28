@@ -1,0 +1,78 @@
+sf_route_paths:
+  -
+    route: '/user/change-password'
+    tags: ['user']
+    request:
+      form_class: 'PhpSolution\ApiUserBundle\Form\Type\ChangePasswordFormType'
+    response:
+      type: 'object'
+      openapi_params: {$ref: '#/definitions/User'}
+    openapi_params:
+      post:
+        responses:
+          << : *defaultCodes
+    << : *defaultSecurity
+
+  -
+    route: '/user/confirm'
+    tags: ['user']
+    response:
+      type: 'object'
+      openapi_params: {$ref: '#/definitions/User'}
+    openapi_params:
+      post:
+        responses:
+          << : *defaultCodes
+
+  -
+    route: '/user/forgot'
+    tags: ['user']
+    request:
+      form_class: 'PhpSolution\ApiUserBundle\Form\Type\ForgotPasswordFormType'
+    response:
+      type: 'object'
+      openapi_params: {$ref: '#/definitions/User'}
+    openapi_params:
+      post:
+        responses:
+          << : *defaultCodes
+
+  -
+    route: '/user/register'
+    tags: ['user']
+    request:
+      form_class: 'PhpSolution\ApiUserBundle\Form\Type\RegistrationFormType'
+    response:
+      type: 'object'
+      openapi_params: {$ref: '#/definitions/User'}
+    openapi_params:
+      post:
+        responses:
+          << : *defaultCodes
+
+  -
+    route: '/user/reset'
+    tags: ['user']
+    request:
+      form_class: 'PhpSolution\ApiUserBundle\Form\Type\ResetPasswordFormType'
+    response:
+      type: 'object'
+      openapi_params: {$ref: '#/definitions/User'}
+    openapi_params:
+      post:
+        responses:
+          << : *defaultCodes
+
+  -
+    route: '/user/update'
+    tags: ['user']
+    request:
+      form_class: 'PhpSolution\ApiUserBundle\Form\Type\UpdateFormType'
+    response:
+      type: 'object'
+      openapi_params: {$ref: '#/definitions/User'}
+    openapi_params:
+      patch:
+        responses:
+          << : *defaultCodes
+    << : *defaultSecurity

@@ -1,64 +1,72 @@
 parameters:
-    # Controller
-    api_user.controller.dto.change_password.class: 'PhpSolution\ApiUserBundle\Dto\ChangePasswordDto'
-    api_user.controller.dto.reset_password.class: 'PhpSolution\ApiUserBundle\Dto\ResetPasswordDto'
-    api_user.controller.dto.registration.class: 'PhpSolution\ApiUserBundle\Dto\RegistrationDto'
-    api_user.controller.dto.update.class: 'PhpSolution\ApiUserBundle\Dto\UpdateDto'
+    # Form
+    ## Type
+    api_user.form.type.change_password.class: 'PhpSolution\ApiUserBundle\Form\Type\ChangePasswordFormType'
+    api_user.form.type.registration.class: 'PhpSolution\ApiUserBundle\Form\Type\RegistrationFormType'
+    api_user.form.type.reset_password.class: 'PhpSolution\ApiUserBundle\Form\Type\ResetPasswordFormType'
+    api_user.form.type.update.class: 'PhpSolution\ApiUserBundle\Form\Type\UpdateFormType'
 
 services:
-    # Controller
-    api_user.controller.change_password:
-        class: 'PhpSolution\ApiUserBundle\Controller\ChangePasswordController'
+    # Form
+    ## Type
+    api_user.form.type.change_password:
+        class: '%api_user.form.type.change_password.class%'
         arguments:
-            - '%api_user.controller.dto.change_password.class%'
+            - '%api_user.user_entity_class%'
+        tags: [form.type]
 
-    api_user.controller.forgot_password:
-        class: 'PhpSolution\ApiUserBundle\Controller\ForgotPasswordController'
+    api_user.form.type.registration:
+        class: '%api_user.form.type.registration.class%'
         arguments:
-            - '%api_user.controller.dto.reset_password.class%'
+            - '%api_user.user_entity_class%'
+        tags: [form.type]
 
-    api_user.controller.registration:
-        class: 'PhpSolution\ApiUserBundle\Controller\RegistrationController'
+    api_user.form.type.reset_password:
+        class: '%api_user.form.type.reset_password.class%'
         arguments:
-            - '%api_user.controller.dto.registration.class%'
+            - '%api_user.user_entity_class%'
+        tags: [form.type]
 
-    api_user.controller.update:
-        class: 'PhpSolution\ApiUserBundle\Controller\UpdateController'
+    api_user.form.type.update:
+        class: '%api_user.form.type.update.class%'
         arguments:
-            - '%api_user.controller.dto.update.class%'
+            - '%api_user.user_entity_class%'
+        tags: [form.type]
 
     # Process
     api_user.process.change_password:
         class: 'PhpSolution\ApiUserBundle\Process\ChangePasswordProcess'
         arguments:
+            - '@form.factory'
             - '@api_user.service.user'
             - '@event_dispatcher'
-
-    api_user.process.confirm_registration:
-        class: 'PhpSolution\ApiUserBundle\Process\ConfirmRegistrationProcess'
-        arguments:
-            - '@api_user.service.user'
-            - '@event_dispatcher'
+            - '%api_user.form.type.change_password.class%'
 
     api_user.process.forgot_password:
         class: 'PhpSolution\ApiUserBundle\Process\ForgotPasswordProcess'
         arguments:
+            - '@form.factory'
             - '@api_user.service.user'
-            - '@api_user.util.token_generator'
             - '@event_dispatcher'
+            - '@api_user.util.token_generator'
+            - '%api_user.form.type.reset_password.class%'
 
     api_user.process.registration:
         class: 'PhpSolution\ApiUserBundle\Process\RegistrationProcess'
         arguments:
-            - '@api_user.util.user_factory'
+            - '@form.factory'
             - '@api_user.service.user'
             - '@event_dispatcher'
+            - '@api_user.util.user_factory'
+            - '%api_user.form.type.registration.class%'
 
     api_user.process.update:
         class: 'PhpSolution\ApiUserBundle\Process\UpdateProcess'
         arguments:
+            - '@form.factory'
             - '@api_user.service.user'
             - '@event_dispatcher'
+            - '%api_user.form.type.update.class%'
 
     # Security
     ## User
