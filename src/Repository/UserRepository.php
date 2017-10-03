@@ -15,19 +15,20 @@ class UserRepository extends EntityRepository
      *
      * @return null|object|UserInterface
      */
-    public function findOneByEmail(string $email)
+    public function findOneByEmail(string $email):? UserInterface
     {
         return $this->findOneBy(['email' => $email]);
     }
 
     /**
      * @param string $email
+     * @param bool   $enabled
      *
      * @return null|object|UserInterface
      */
-    public function findOneEnabledByEmail(string $email)
+    public function findOneByEmailAndEnabled(string $email, bool $enabled):? UserInterface
     {
-        return $this->findOneBy(['email' => $email, 'enabled' => true]);
+        return $this->findOneBy(['email' => $email, 'enabled' => $enabled]);
     }
 
     /**
@@ -35,7 +36,7 @@ class UserRepository extends EntityRepository
      *
      * @return null|object|UserInterface
      */
-    public function findOneByConfirmationToken(string $token)
+    public function findOneByConfirmationToken(string $token):? UserInterface
     {
         return $this->findOneBy(['confirmationToken' => $token]);
     }

@@ -2,6 +2,7 @@
 
 namespace PhpSolution\ApiUserBundle\Process;
 
+use Doctrine\ORM\NoResultException;
 use PhpSolution\ApiUserBundle\Entity\UserInterface;
 use PhpSolution\ApiUserBundle\Event\UserEvent;
 use PhpSolution\ApiUserBundle\Service\UserService;
@@ -10,9 +11,6 @@ use PhpSolution\ApiUserBundle\Util\UserFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * RegistrationProcess
@@ -22,11 +20,11 @@ class RegistrationProcess extends AbstractProcess
     /**
      * @var UserFactory
      */
-    private $userFactory;
+    protected $userFactory;
     /**
      * @var string
      */
-    private $registrationFormClass;
+    protected $registrationFormClass;
 
     /**
      * @param FormFactory              $formFactory
@@ -49,7 +47,7 @@ class RegistrationProcess extends AbstractProcess
      */
     public function register(array $data)
     {
-        $user = $this->userFactory->createUser();
+        $user = $this->getUser($data);
         $form = $this->formFactory->create($this->registrationFormClass, $user);
         $form->submit($data);
         if (!$form->isValid()) {
@@ -63,17 +61,30 @@ class RegistrationProcess extends AbstractProcess
     }
 
     /**
+     * @param array $data
+     *
+     * @return UserInterface
+     */
+    protected function getUser(array $data): UserInterface
+    {
+        if (array_key_exists('email', $data)) {
+            $user = $this->userService->getRepository()->findOneByEmailAndEnabled($data['email'], false);
+        }
+
+        return isset($user) ? $user : $this->userFactory->createUser();
+    }
+
+    /**
      * @param string $token
      *
-     * @return ConstraintViolationListInterface|UserInterface
+     * @return UserInterface
+     * @throws NoResultException
      */
-    public function confirm(string $token)
+    public function confirm(string $token): UserInterface
     {
         $user = $this->userService->getRepository()->findOneByConfirmationToken($token);
-        if ($user === null) {
-            $message = sprintf('The user with confirmation token "%s" does not exist', $token);
-
-            return new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, 'token', $token)]);
+        if (null === $user || $user->isEnabled()) {
+            throw new NoResultException();
         }
 
         $user

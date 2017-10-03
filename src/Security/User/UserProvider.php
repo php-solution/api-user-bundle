@@ -40,8 +40,11 @@ class UserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username): UserInterface
     {
-        $user = $this->repository->findOneEnabledByEmail($username);
+        $user = $this->repository->findOneByEmail($username);
         if ($user instanceof $this->userClass) {
+            if (!$user->isEnabled()) {
+                throw new UserNotEnabledException(sprintf('Username "%s" does not enabled.', $username));
+            }
             return $user;
         }
 

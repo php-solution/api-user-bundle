@@ -2,11 +2,10 @@
 
 namespace PhpSolution\ApiUserBundle\Controller;
 
-use PhpSolution\StdLib\Exception\NotFoundException;
-use PhpSolution\StdLib\Mapper\ObjectMapper;
-use PhpSolution\ApiUserBundle\Dto\RegistrationDto;
+use Doctrine\ORM\NoResultException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * RegistrationController
@@ -26,14 +25,16 @@ class RegistrationController extends AbstractController
     }
 
     /**
-     * @param Request %token
+     * @param string $token
      *
      * @return Response
      */
-    public function confirmAction($token): Response
+    public function confirmAction(string $token): Response
     {
-        $result = $this->get('api_user.process.registration')->confirm($token);
-
-        return $this->response($result);
+        try {
+            return $this->response($this->get('api_user.process.registration')->confirm($token));
+        } catch (NoResultException $ex) {
+            throw new NotFoundHttpException(sprintf('User with token "%s" was not found', $token));
+        }
     }
 }

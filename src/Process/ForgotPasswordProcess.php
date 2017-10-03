@@ -74,7 +74,7 @@ class ForgotPasswordProcess extends AbstractProcess
      */
     public function createToken(string $email)
     {
-        $user = $this->userService->getRepository()->findOneEnabledByEmail($email);
+        $user = $this->userService->getRepository()->findOneByEmailAndEnabled($email, true);
         if ($user === null) {
             $message = sprintf('The user with email "%s" does not exist', $email);
 
