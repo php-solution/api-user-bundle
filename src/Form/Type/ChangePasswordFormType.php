@@ -8,7 +8,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * ChangePasswordFormType
@@ -21,11 +20,15 @@ class ChangePasswordFormType extends UserBaseFormType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('currentPassword', PasswordType::class, [
-            'mapped' => false,
-            'constraints' => new UserPassword()
-        ]);
-        $builder->add('plainPassword', RepeatedType::class, ['type' => PasswordType::class]);
+        $builder
+            ->add('currentPassword', PasswordType::class, [
+                'mapped' => false,
+                'constraints' => new UserPassword()
+            ])
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => ['error_bubbling' => true]
+            ]);
     }
 
     /**

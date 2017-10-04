@@ -4,6 +4,8 @@ PhpSolution\ApiUserBundle\Entity\AbstractUser:
             type: integer
         roles:
             type: array
+            accessor:
+                getter: getRoles
         confirmationToken:
             exclude: true
         passwordRequestedAt:

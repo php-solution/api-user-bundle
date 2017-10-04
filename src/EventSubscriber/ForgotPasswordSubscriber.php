@@ -5,6 +5,7 @@ namespace PhpSolution\ApiUserBundle\EventSubscriber;
 use PhpSolution\ApiUserBundle\Event\UserEvent;
 use PhpSolution\ApiUserBundle\UserEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * ForgotPasswordSubscriber
@@ -12,8 +13,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ForgotPasswordSubscriber implements EventSubscriberInterface
 {
     const SUBJECT = 'Forgot password';
-    const BODY = 'To change password please use this code';
+    const BODY = 'To change password please use this code, please follow the link';
 
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $router;
     /**
      * @var \Swift_Mailer
      */
@@ -24,11 +29,13 @@ class ForgotPasswordSubscriber implements EventSubscriberInterface
     private $sender;
 
     /**
-     * @param \Swift_Mailer $mailer
-     * @param string        $sender
+     * @param UrlGeneratorInterface $router
+     * @param \Swift_Mailer         $mailer
+     * @param string                $sender
      */
-    public function __construct(\Swift_Mailer $mailer, string $sender)
+    public function __construct(UrlGeneratorInterface $router, \Swift_Mailer $mailer, string $sender)
     {
+        $this->router = $router;
         $this->mailer = $mailer;
         $this->sender = $sender;
     }
@@ -49,7 +56,8 @@ class ForgotPasswordSubscriber implements EventSubscriberInterface
     public function onForgotPassword(UserEvent $event): void
     {
         $user = $event->getUser();
-        $body = sprintf(self::BODY . ' "%s"', $user->getConfirmationToken());
+        $link = $this->router->generate('/user/reset', ['token' => $user->getConfirmationToken()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $body = sprintf(self::BODY . ' %s', $link);
 
         $message = (new \Swift_Message(self::SUBJECT))
             ->setFrom($this->sender)

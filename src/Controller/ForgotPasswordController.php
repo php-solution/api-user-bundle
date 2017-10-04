@@ -2,9 +2,10 @@
 
 namespace PhpSolution\ApiUserBundle\Controller;
 
-use PhpSolution\ApiUserBundle\Form\Type\ForgotPasswordFormType;
+use Doctrine\ORM\NoResultException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * ForgotPasswordController
@@ -18,12 +19,11 @@ class ForgotPasswordController extends AbstractController
      */
     public function forgotAction(Request $request): Response
     {
-        $form = $this->createForm(ForgotPasswordFormType::class);
-        $form->handleRequest($request);
-        if (!$form->isValid()) {
-            return $this->response($form);
+        try {
+            $result = $this->get('api_user.process.forgot_password')->createToken($request->request->all());
+        } catch (NoResultException $ex) {
+            throw new NotFoundHttpException(sprintf('User with email "%s" could not be found', $request->get('email')));
         }
-        $result = $this->get('api_user.process.forgot_password')->createToken($form->getData()['email']);
 
         return $this->response($result);
     }
@@ -36,7 +36,11 @@ class ForgotPasswordController extends AbstractController
      */
     public function resetAction(Request $request, string $token): Response
     {
-        $result = $this->get('api_user.process.forgot_password')->resetPassword($token, $request->request->all());
+        try {
+            $result = $this->get('api_user.process.forgot_password')->resetPassword($token, $request->request->all());
+        } catch (NoResultException $ex) {
+            throw new NotFoundHttpException(sprintf('User with token "%s" could not be found', $token));
+        }
 
         return $this->response($result);
     }

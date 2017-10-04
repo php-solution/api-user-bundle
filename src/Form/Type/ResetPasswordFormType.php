@@ -19,7 +19,10 @@ class ResetPasswordFormType extends UserBaseFormType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('plainPassword', RepeatedType::class, ['type' => PasswordType::class]);
+        $builder->add('plainPassword', RepeatedType::class, [
+            'type' => PasswordType::class,
+            'first_options' => ['error_bubbling' => true]
+        ]);
     }
 
     /**
