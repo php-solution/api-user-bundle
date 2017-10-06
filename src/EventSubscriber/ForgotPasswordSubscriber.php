@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class ForgotPasswordSubscriber implements EventSubscriberInterface
 {
     const SUBJECT = 'Forgot password';
-    const BODY = 'To change password please use this code, please follow the link';
+    const BODY = 'To change password, please follow the link';
 
     /**
      * @var UrlGeneratorInterface
