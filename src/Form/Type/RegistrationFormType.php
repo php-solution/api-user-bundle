@@ -22,7 +22,10 @@ class RegistrationFormType extends UserBaseFormType
     {
         $builder
             ->add('email', EmailType::class)
-            ->add('plainPassword', RepeatedType::class, ['type' => PasswordType::class]);
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => ['error_bubbling' => true]
+            ]);
     }
 
     /**
