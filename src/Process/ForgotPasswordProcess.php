@@ -112,6 +112,8 @@ class ForgotPasswordProcess extends AbstractProcess
             return $form;
         }
 
+        $user->setConfirmationToken(null);
+        $this->userService->updateUser($user);
         $this->eventDispatcher->dispatch(UserEvents::FORGOT_PASSWORD_COMPLETED, new UserEvent($user));
 
         return $user;

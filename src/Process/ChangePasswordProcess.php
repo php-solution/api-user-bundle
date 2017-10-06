@@ -47,6 +47,7 @@ class ChangePasswordProcess extends AbstractProcess
             return $form;
         }
 
+        $user->setConfirmationToken(null);
         $this->userService->updateUser($user);
         $this->eventDispatcher->dispatch(UserEvents::CHANGE_PASSWORD_COMPLETED, new UserEvent($user));
 
