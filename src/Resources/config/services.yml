@@ -7,6 +7,11 @@ parameters:
     api_user.form.type.update.class: 'PhpSolution\ApiUserBundle\Form\Type\UpdateFormType'
 
 services:
+    _defaults:
+        autowire: false      # Automatically injects dependencies in your services.
+        autoconfigure: false # Automatically registers your services as commands, event subscribers, etc.
+        public: true
+
     # Form
     ## Type
     api_user.form.type.change_password:
