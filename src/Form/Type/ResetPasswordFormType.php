@@ -22,7 +22,7 @@ class ResetPasswordFormType extends UserBaseFormType
         $builder->add('plainPassword', RepeatedType::class, [
             'type' => PasswordType::class,
             'invalid_message' => 'The password fields must match.',
-            'first_options' => ['error_bubbling' => true]
+            'options' => ['error_bubbling' => true],
         ]);
     }
 
@@ -31,6 +31,7 @@ class ResetPasswordFormType extends UserBaseFormType
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
+        parent::configureOptions($resolver);
         $resolver
             ->setDefault('method', Request::METHOD_POST)
             ->setDefault('validation_groups', ['ResetPassword', 'Default']);
